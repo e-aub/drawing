@@ -5,9 +5,9 @@ pub trait Drawable {
     fn draw(&self, image: &mut Image);
 
     fn color(&self) -> Color {
-        let r = rand::thread_rng().gen_range(1..=255);
-        let g = rand::thread_rng().gen_range(1..=255);
-        let b = rand::thread_rng().gen_range(1..=255);
+        let r = rand::thread_rng().gen_range(250..=255);
+        let g = rand::thread_rng().gen_range(250..=255);
+        let b = rand::thread_rng().gen_range(250..=255);
 
         Color { r, g, b, a: 255 }
     }
@@ -71,6 +71,29 @@ impl Drawable for Line {
     }
 }
 
+// Rectangle
+pub struct Rectangle(Point, Point, Point, Point);
+
+impl Rectangle {
+    pub fn new(p1: &Point, p2: &Point) -> Self {
+        Self(
+            dbg!(*p1),
+            dbg!(*p2),
+            dbg!(Point(p1.0, p2.0)),
+            dbg!(Point(p2.0, p1.0)),
+        )
+    }
+}
+
+impl Drawable for Rectangle {
+    fn draw(&self, image: &mut Image) {
+        Line::new(self.0, self.2).draw(image);
+        Line::new(self.2, self.1).draw(image);
+        Line::new(self.1, self.3).draw(image);
+        Line::new(self.3, self.0).draw(image);
+    }
+}
+
 // Circle Shape
 // pub struct Circle {
 //     center: Point,
@@ -90,14 +113,5 @@ impl Drawable for Line {
 // impl Triangle {
 //     pub fn new(x: &Point, y: &Point, z: &Point) -> Self {
 //         return Self(x, y, z);
-//     }
-// }
-
-// Rectangle
-// pub struct Rectangle(Point, Point, Point, Point);
-
-// impl Rectangle {
-//     pub fn new(x: &Point, y: &Point) -> Self {
-//         Self(x, y, Point(x.0, y.1), Point(x.1, y.0))
 //     }
 // }
