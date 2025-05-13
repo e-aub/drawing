@@ -5,17 +5,11 @@ pub trait Drawable {
     fn draw(&self, image: &mut Image);
 
     fn color(&self) -> Color {
-        // let r = rand::thread_rng().gen_range(1..=255);
-        // let g = rand::thread_rng().gen_range(1..=255);
-        // let b = rand::thread_rng().gen_range(1..=255);
-        // let a = rand::thread_rng().gen_range(1..=255);
+        let r = rand::thread_rng().gen_range(1..=255);
+        let g = rand::thread_rng().gen_range(1..=255);
+        let b = rand::thread_rng().gen_range(1..=255);
 
-        Color {
-            r: 255,
-            g: 255,
-            b: 255,
-            a: 255,
-        }
+        Color { r, g, b, a: 255 }
     }
 }
 
@@ -24,7 +18,7 @@ pub trait Displayable {
 }
 
 // Point
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Point(i32, i32);
 
 impl Point {
@@ -47,6 +41,7 @@ impl Drawable for Point {
 }
 
 // Line
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Line(Point, Point);
 
 impl Line {
@@ -63,17 +58,15 @@ impl Line {
 
 impl Drawable for Line {
     fn draw(&self, image: &mut Image) {
-        dbg!(&self.0);
-        dbg!(&self.1);
         let m = (self.1.1 - self.0.1) / (self.1.0 - self.0.0);
         let b = self.0.1 - (m * self.0.0);
-
+        let color = self.color();
 
         let min = self.0.0.min(self.1.0);
         let max = self.0.0.max(self.1.0);
         for x in min..max {
             let y = m * x + b;
-            image.display(x, y, self.color());
+            image.display(x, y, color.clone());
         }
     }
 }
