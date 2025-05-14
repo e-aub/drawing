@@ -24,7 +24,7 @@ fn main() {
     //     gs::Circle::random(image.width, image.height).draw(&mut image);
     // }
 
-    let cube = Cube::new(&gs::Point::new(250, 250), &gs::Point::new(150, 150));
+    let cube = Cube::new(&gs::Point::new(250, 350), &gs::Point::new(100, 100));
     cube.draw(&mut image);
 
     raster::save(&image, "image.png").unwrap();

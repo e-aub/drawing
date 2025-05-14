@@ -185,5 +185,12 @@ impl Drawable for Cube{
     fn draw(&self, image :&mut Image){
         self.rec_1.draw(image);
         self.rec_2.draw(image);
+        Line::new(self.rec_1.point_a, self.rec_2.point_a).draw(image);
+        Line::new(self.rec_1.point_b, self.rec_2.point_b).draw(image);
+        Line::new(self.rec_1.point_c, self.rec_2.point_c).draw(image);
+        Line::new(self.rec_1.point_d, self.rec_2.point_d).draw(image);
+        
+
+
     }
 }
