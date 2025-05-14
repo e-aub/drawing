@@ -126,6 +126,31 @@ impl Drawable for Rectangle {
     }
 }
 
+// Triangle
+pub struct Triangle {
+    point_a: Point,
+    point_b: Point,
+    point_c: Point,
+}
+
+impl Triangle {
+    pub fn new(point_a: &Point, point_b: &Point, point_c: &Point) -> Self {
+        Self {
+            point_a: *point_a,
+            point_b: *point_b,
+            point_c: *point_c,
+        }
+    }
+}
+
+impl Drawable for Triangle {
+    fn draw(&self, image: &mut Image) {
+        Line::new(self.point_a, self.point_c).draw(image);
+        Line::new(self.point_c, self.point_b).draw(image);
+        Line::new(self.point_b, self.point_a).draw(image);
+    }
+}
+
 // // Circle Shape
 // // pub struct Circle {
 // //     center: Point,
@@ -135,15 +160,5 @@ impl Drawable for Rectangle {
 // // impl Circle {
 // //     pub fn new(center: Point, radius: i32) -> Self {
 // //         Self { center, radius }
-// //     }
-// // }
-
-// // Triangle
-
-// // pub struct Triangle(&Point, &Point, &Point);
-
-// // impl Triangle {
-// //     pub fn new(x: &Point, y: &Point, z: &Point) -> Self {
-// //         return Self(x, y, z);
 // //     }
 // // }
