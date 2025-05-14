@@ -259,8 +259,8 @@ pub struct Pentagon{
 }
 
 impl Pentagon{
-    pub fn new(start : Point, side_length: i32) -> Self{
-        let mut current_point = start;
+    pub fn new(start : &Point, side_length: i32) -> Self{
+        let mut current_point = *start;
         let mut  angle:f32 = 0.;
         let mut pentagon = Pentagon{
             lines: vec![],
