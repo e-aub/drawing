@@ -162,3 +162,28 @@ impl Drawable for Triangle {
 // //         Self { center, radius }
 // //     }
 // // }
+
+
+pub struct Cube {
+    rec_1: Rectangle,
+    rec_2: Rectangle,
+}
+
+impl Cube {
+    pub fn new(a: &Point, b: &Point) -> Self{
+        let dx = (a.x - b.x) / 2;
+        let dy = -((a.y - b.y)/2);
+        Self{
+            rec_1: Rectangle::new(&a, &b),
+            rec_2 : Rectangle::new(&Point { x: (a.x + dx), y: (a.y + dy) }, &Point { x: (b.x + dx), y: (b.y + dy) })
+        }
+    }
+}
+
+
+impl Drawable for Cube{
+    fn draw(&self, image :&mut Image){
+        self.rec_1.draw(image);
+        self.rec_2.draw(image);
+    }
+}
