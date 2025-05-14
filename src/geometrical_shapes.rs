@@ -152,38 +152,74 @@ impl Drawable for Triangle {
 }
 
 // // Circle Shape
-// // pub struct Circle {
-// //     center: Point,
-// //     radius: i32,
-// // }
-
-// // impl Circle {
-// //     pub fn new(center: Point, radius: i32) -> Self {
-// //         Self { center, radius }
-// //     }
-// // }
-
-
-pub struct Cube {
-    rec_1: Rectangle,
-    rec_2: Rectangle,
+pub struct Circle {
+    center: Point,
+    radius: i32,
 }
 
-impl Cube {
-    pub fn new(a: &Point, b: &Point) -> Self{
-        let dx = (a.x - b.x) / 2;
-        let dy = -((a.y - b.y)/2);
-        Self{
-            rec_1: Rectangle::new(&a, &b),
-            rec_2 : Rectangle::new(&Point { x: (a.x + dx), y: (a.y + dy) }, &Point { x: (b.x + dx), y: (b.y + dy) })
-        }
+
+impl Circle {
+    pub fn new(center: Point, radius: i32) -> Self {
+        Self { center, radius }
+    }
+    
+    pub fn random(width: i32, height: i32) -> Self {
+        let p = Point::random(width, height);
+        let r  = rand::thread_rng().gen_range(0..width.min(height)/2);
+        Self::new(p, r)
+    }    
+}
+
+fn distance(p1: (i32, i32), p2: (i32, i32)) -> f64 {
+    let dx = p2.0 - p1.0;
+    let dy = p2.1 - p1.1;
+    ((dx.pow(2) + dy.pow(2)) as f64).sqrt()
+}
+
+fn closest_to_target(a: f64, b: f64, c: f64, target: f64) -> f64 {
+    let diff_a = (a - target).abs();
+    let diff_b = (b - target).abs();
+    let diff_c = (c - target).abs();
+
+    if diff_a <= diff_b && diff_a <= diff_c {
+        a
+    } else if diff_b <= diff_c {
+        b
+    } else {
+        c
     }
 }
 
+impl Drawable for Circle {
+    fn draw(&self, image: &mut Image) {
+        let cx= self.center.x;
+        let cy= self.center.y;
+        let r = self.radius;
 
-impl Drawable for Cube{
-    fn draw(&self, image :&mut Image){
-        self.rec_1.draw(image);
-        self.rec_2.draw(image);
+        let mut x= cx;
+        let mut y = cy - r;
+        let color = self.color();
+
+        while y <= cy {
+            let a=distance((cx,cy), (x+1,y));
+            let b=distance((cx,cy), (x,y+1));
+            let c=distance((cx,cy), (x+1,y+1));
+            let min=closest_to_target(a,b,c,r as f64);
+            
+            if a == min{
+                x+=1;
+            }else if b == min{
+                y+=1;
+            }else if c == min {
+                x+=1;
+                y+=1;
+            }
+
+            image.display(x, y, color.clone());
+            image.display(2 * cx - x, y, color.clone());
+            image.display(x,  2 * cy - y, color.clone());
+            image.display(2 * cx - x, 2 * cy - y, color.clone());
+        }
+
     }
 }
