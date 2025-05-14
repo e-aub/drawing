@@ -52,23 +52,15 @@ pub struct Line {
 }
 
 impl Line {
-    pub fn new(start: Point, end: Point) -> Self {
-        Self {
-            start,
-            end,
-            color: Color {
-                r: 255,
-                g: 255,
-                b: 255,
-                a: 255,
-            },
-        }
+    pub fn new(start: Point, end: Point, color: Color) -> Self {
+        Self { start, end, color }
     }
 
     pub fn random(width: i32, height: i32) -> Self {
         let a = Point::random(width, height);
         let b = Point::random(width, height);
-        Self::new(a, b)
+
+        Self::new(a, b, a.color())
     }
 }
 
@@ -119,10 +111,12 @@ impl Rectangle {
 
 impl Drawable for Rectangle {
     fn draw(&self, image: &mut Image) {
-        Line::new(self.point_a, self.point_c).draw(image);
-        Line::new(self.point_c, self.point_b).draw(image);
-        Line::new(self.point_b, self.point_d).draw(image);
-        Line::new(self.point_d, self.point_a).draw(image);
+        let color = self.color();
+
+        Line::new(self.point_a, self.point_c, color.clone()).draw(image);
+        Line::new(self.point_c, self.point_b, color.clone()).draw(image);
+        Line::new(self.point_b, self.point_d, color.clone()).draw(image);
+        Line::new(self.point_d, self.point_a, color.clone()).draw(image);
     }
 }
 
@@ -145,9 +139,11 @@ impl Triangle {
 
 impl Drawable for Triangle {
     fn draw(&self, image: &mut Image) {
-        Line::new(self.point_a, self.point_c).draw(image);
-        Line::new(self.point_c, self.point_b).draw(image);
-        Line::new(self.point_b, self.point_a).draw(image);
+        let color = self.color();
+
+        Line::new(self.point_a, self.point_c, color.clone()).draw(image);
+        Line::new(self.point_c, self.point_b, color.clone()).draw(image);
+        Line::new(self.point_b, self.point_a, color.clone()).draw(image);
     }
 }
 
@@ -157,17 +153,16 @@ pub struct Circle {
     radius: i32,
 }
 
-
 impl Circle {
     pub fn new(center: Point, radius: i32) -> Self {
         Self { center, radius }
     }
-    
+
     pub fn random(width: i32, height: i32) -> Self {
         let p = Point::random(width, height);
-        let r  = rand::thread_rng().gen_range(0..width.min(height)/2);
+        let r = rand::thread_rng().gen_range(0..width.min(height) / 2);
         Self::new(p, r)
-    }    
+    }
 }
 
 fn distance(p1: (i32, i32), p2: (i32, i32)) -> f64 {
@@ -192,35 +187,34 @@ fn closest_to_target(a: f64, b: f64, c: f64, target: f64) -> f64 {
 
 impl Drawable for Circle {
     fn draw(&self, image: &mut Image) {
-        let cx= self.center.x;
-        let cy= self.center.y;
+        let cx = self.center.x;
+        let cy = self.center.y;
         let r = self.radius;
 
-        let mut x= cx;
+        let mut x = cx;
         let mut y = cy - r;
         let color = self.color();
 
         while y <= cy {
-            let a=distance((cx,cy), (x+1,y));
-            let b=distance((cx,cy), (x,y+1));
-            let c=distance((cx,cy), (x+1,y+1));
-            let min=closest_to_target(a,b,c,r as f64);
-            
-            if a == min{
-                x+=1;
-            }else if b == min{
-                y+=1;
-            }else if c == min {
-                x+=1;
-                y+=1;
-            }
-
             image.display(x, y, color.clone());
             image.display(2 * cx - x, y, color.clone());
-            image.display(x,  2 * cy - y, color.clone());
+            image.display(x, 2 * cy - y, color.clone());
             image.display(2 * cx - x, 2 * cy - y, color.clone());
-        }
 
+            let a = distance((cx, cy), (x + 1, y));
+            let b = distance((cx, cy), (x, y + 1));
+            let c = distance((cx, cy), (x + 1, y + 1));
+            let min = closest_to_target(a, b, c, r as f64);
+
+            if a == min {
+                x += 1;
+            } else if b == min {
+                y += 1;
+            } else if c == min {
+                x += 1;
+                y += 1;
+            }
+        }
     }
 }
 
@@ -230,23 +224,34 @@ pub struct Cube {
 }
 
 impl Cube {
-    pub fn new(a: &Point, b: &Point) -> Self{
+    pub fn new(a: &Point, b: &Point) -> Self {
         let dx = (a.x - b.x) / 2;
-        let dy = -((a.y - b.y)/2);
-        Self{
+        let dy = -((a.y - b.y) / 2);
+        Self {
             rec_1: Rectangle::new(&a, &b),
-            rec_2 : Rectangle::new(&Point { x: (a.x + dx), y: (a.y + dy) }, &Point { x: (b.x + dx), y: (b.y + dy) })
+            rec_2: Rectangle::new(
+                &Point {
+                    x: (a.x + dx),
+                    y: (a.y + dy),
+                },
+                &Point {
+                    x: (b.x + dx),
+                    y: (b.y + dy),
+                },
+            ),
         }
     }
 }
 
-impl Drawable for Cube{
-    fn draw(&self, image :&mut Image){
+impl Drawable for Cube {
+    fn draw(&self, image: &mut Image) {
         self.rec_1.draw(image);
         self.rec_2.draw(image);
-        Line::new(self.rec_1.point_a, self.rec_2.point_a).draw(image);
-        Line::new(self.rec_1.point_b, self.rec_2.point_b).draw(image);
-        Line::new(self.rec_1.point_c, self.rec_2.point_c).draw(image);
-        Line::new(self.rec_1.point_d, self.rec_2.point_d).draw(image);
+        let color = self.color();
+
+        Line::new(self.rec_1.point_a, self.rec_2.point_a, color.clone()).draw(image);
+        Line::new(self.rec_1.point_b, self.rec_2.point_b, color.clone()).draw(image);
+        Line::new(self.rec_1.point_c, self.rec_2.point_c, color.clone()).draw(image);
+        Line::new(self.rec_1.point_d, self.rec_2.point_d, color.clone()).draw(image);
     }
 }
