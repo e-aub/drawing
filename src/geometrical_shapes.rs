@@ -19,11 +19,14 @@ pub trait Displayable {
 
 // Point
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Point(i32, i32);
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
 
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
-        Self(x, y)
+        Self { x, y }
     }
 
     pub fn random(width: i32, height: i32) -> Self {
@@ -36,17 +39,30 @@ impl Point {
 
 impl Drawable for Point {
     fn draw(&self, image: &mut Image) {
-        image.display(self.0, self.1, self.color());
+        image.display(self.x, self.y, self.color());
     }
 }
 
 // Line
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Line(Point, Point);
+#[derive(Debug, Clone)]
+pub struct Line {
+    start: Point,
+    end: Point,
+    color: Color,
+}
 
 impl Line {
-    pub fn new(a: Point, b: Point) -> Self {
-        Self(a, b)
+    pub fn new(start: Point, end: Point) -> Self {
+        Self {
+            start,
+            end,
+            color: Color {
+                r: 255,
+                g: 255,
+                b: 255,
+                a: 255,
+            },
+        }
     }
 
     pub fn random(width: i32, height: i32) -> Self {
@@ -58,60 +74,71 @@ impl Line {
 
 impl Drawable for Line {
     fn draw(&self, image: &mut Image) {
-        let m = (self.1.1 - self.0.1) / (self.1.0 - self.0.0);
-        let b = self.0.1 - (m * self.0.0);
-        let color = self.color();
+        let x_start = self.start.x;
+        let y_start = self.start.y;
+        let x_end = self.end.x;
+        let y_end = self.end.y;
 
-        let min = self.0.0.min(self.1.0);
-        let max = self.0.0.max(self.1.0);
-        for x in min..max {
-            let y = m * x + b;
-            image.display(x, y, color.clone());
+        let dx = (x_end - x_start) as f32;
+        let dy = (y_end - y_start) as f32;
+
+        let steps = dx.abs().max(dy.abs()) as i32;
+
+        let x_increment = dx / steps as f32;
+        let y_increment = dy / steps as f32;
+
+        let mut x = x_start as f32;
+        let mut y = y_start as f32;
+
+        for _ in 0..=steps {
+            image.display(x.round() as i32, y.round() as i32, self.color.clone());
+            x += x_increment;
+            y += y_increment;
         }
     }
 }
 
-// Rectangle
-pub struct Rectangle(Point, Point, Point, Point);
+// // Rectangle
+// pub struct Rectangle(Point, Point, Point, Point);
 
-impl Rectangle {
-    pub fn new(p1: &Point, p2: &Point) -> Self {
-        Self(
-            dbg!(*p1),
-            dbg!(*p2),
-            dbg!(Point(p1.0, p2.0)),
-            dbg!(Point(p2.0, p1.0)),
-        )
-    }
-}
-
-impl Drawable for Rectangle {
-    fn draw(&self, image: &mut Image) {
-        Line::new(self.0, self.2).draw(image);
-        Line::new(self.2, self.1).draw(image);
-        Line::new(self.1, self.3).draw(image);
-        Line::new(self.3, self.0).draw(image);
-    }
-}
-
-// Circle Shape
-// pub struct Circle {
-//     center: Point,
-//     radius: i32,
-// }
-
-// impl Circle {
-//     pub fn new(center: Point, radius: i32) -> Self {
-//         Self { center, radius }
+// impl Rectangle {
+//     pub fn new(p1: &Point, p2: &Point) -> Self {
+//         Self(
+//             dbg!(*p1),
+//             dbg!(*p2),
+//             dbg!(Point(p1.0, p2.0)),
+//             dbg!(Point(p2.0, p1.0)),
+//         )
 //     }
 // }
 
-// Triangle
-
-// pub struct Triangle(&Point, &Point, &Point);
-
-// impl Triangle {
-//     pub fn new(x: &Point, y: &Point, z: &Point) -> Self {
-//         return Self(x, y, z);
+// impl Drawable for Rectangle {
+//     fn draw(&self, image: &mut Image) {
+//         Line::new(self.0, self.2).draw(image);
+//         Line::new(self.2, self.1).draw(image);
+//         Line::new(self.1, self.3).draw(image);
+//         Line::new(self.3, self.0).draw(image);
 //     }
 // }
+
+// // Circle Shape
+// // pub struct Circle {
+// //     center: Point,
+// //     radius: i32,
+// // }
+
+// // impl Circle {
+// //     pub fn new(center: Point, radius: i32) -> Self {
+// //         Self { center, radius }
+// //     }
+// // }
+
+// // Triangle
+
+// // pub struct Triangle(&Point, &Point, &Point);
+
+// // impl Triangle {
+// //     pub fn new(x: &Point, y: &Point, z: &Point) -> Self {
+// //         return Self(x, y, z);
+// //     }
+// // }
