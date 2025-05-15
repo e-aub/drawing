@@ -1,7 +1,6 @@
 use rand::Rng;
 use raster::{Color, Image};
 
-
 pub trait Drawable {
     fn draw(&self, image: &mut Image);
 
@@ -152,23 +151,22 @@ impl Drawable for Triangle {
     }
 }
 
-// // Circle Shape
+// Circle Shape
 pub struct Circle {
     center: Point,
     radius: i32,
 }
 
-
 impl Circle {
     pub fn new(center: Point, radius: i32) -> Self {
         Self { center, radius }
     }
-    
+
     pub fn random(width: i32, height: i32) -> Self {
         let p = Point::random(width, height);
-        let r  = rand::thread_rng().gen_range(0..width.min(height)/2);
+        let r = rand::thread_rng().gen_range(0..width.min(height) / 2);
         Self::new(p, r)
-    }    
+    }
 }
 
 fn distance(p1: (i32, i32), p2: (i32, i32)) -> f64 {
@@ -193,35 +191,34 @@ fn closest_to_target(a: f64, b: f64, c: f64, target: f64) -> f64 {
 
 impl Drawable for Circle {
     fn draw(&self, image: &mut Image) {
-        let cx= self.center.x;
-        let cy= self.center.y;
+        let cx = self.center.x;
+        let cy = self.center.y;
         let r = self.radius;
 
-        let mut x= cx;
+        let mut x = cx;
         let mut y = cy - r;
         let color = self.color();
 
         while y <= cy {
-            let a=distance((cx,cy), (x+1,y));
-            let b=distance((cx,cy), (x,y+1));
-            let c=distance((cx,cy), (x+1,y+1));
-            let min=closest_to_target(a,b,c,r as f64);
-            
-            if a == min{
-                x+=1;
-            }else if b == min{
-                y+=1;
-            }else if c == min {
-                x+=1;
-                y+=1;
-            }
-
             image.display(x, y, color.clone());
             image.display(2 * cx - x, y, color.clone());
-            image.display(x,  2 * cy - y, color.clone());
+            image.display(x, 2 * cy - y, color.clone());
             image.display(2 * cx - x, 2 * cy - y, color.clone());
-        }
 
+            let a = distance((cx, cy), (x + 1, y));
+            let b = distance((cx, cy), (x, y + 1));
+            let c = distance((cx, cy), (x + 1, y + 1));
+            let min = closest_to_target(a, b, c, r as f64);
+
+            if a == min {
+                x += 1;
+            } else if b == min {
+                y += 1;
+            } else if c == min {
+                x += 1;
+                y += 1;
+            }
+        }
     }
 }
 
@@ -231,18 +228,27 @@ pub struct Cube {
 }
 
 impl Cube {
-    pub fn new(a: &Point, b: &Point) -> Self{
+    pub fn new(a: &Point, b: &Point) -> Self {
         let dx = (a.x - b.x) / 2;
-        let dy = -((a.y - b.y)/2);
-        Self{
+        let dy = -((a.y - b.y) / 2);
+        Self {
             rec_1: Rectangle::new(&a, &b),
-            rec_2 : Rectangle::new(&Point { x: (a.x + dx), y: (a.y + dy) }, &Point { x: (b.x + dx), y: (b.y + dy) })
+            rec_2: Rectangle::new(
+                &Point {
+                    x: (a.x + dx),
+                    y: (a.y + dy),
+                },
+                &Point {
+                    x: (b.x + dx),
+                    y: (b.y + dy),
+                },
+            ),
         }
     }
 }
 
-impl Drawable for Cube{
-    fn draw(&self, image :&mut Image){
+impl Drawable for Cube {
+    fn draw(&self, image: &mut Image) {
         self.rec_1.draw(image);
         self.rec_2.draw(image);
         Line::new(self.rec_1.point_a, self.rec_2.point_a).draw(image);
@@ -252,39 +258,34 @@ impl Drawable for Cube{
     }
 }
 
-
-
-pub struct Pentagon{
-    lines : Vec<Line>,
+pub struct Pentagon {
+    lines: Vec<Line>,
 }
 
-impl Pentagon{
-    pub fn new(start : &Point, side_length: i32) -> Self{
+impl Pentagon {
+    pub fn new(start: &Point, side_length: i32) -> Self {
         let mut current_point = *start;
-        let mut  angle:f32 = 0.;
-        let mut pentagon = Pentagon{
-            lines: vec![],
-        };
+        let mut angle: f32 = 0.;
+        let mut pentagon = Pentagon { lines: vec![] };
 
-        for _ in 1 ..= 5 {
+        for _ in 1..=5 {
             let x_offset = ((side_length as f32) * angle.to_radians().cos()) as i32;
-            let y_offset  = ((side_length as f32) * angle.to_radians().sin()) as i32;
+            let y_offset = ((side_length as f32) * angle.to_radians().sin()) as i32;
 
             let next_point = Point::new(current_point.x + x_offset, current_point.y + y_offset);
 
             pentagon.lines.push(Line::new(current_point, next_point));
             current_point = next_point;
 
-            angle += 72.0;        
+            angle += 72.0;
         }
         return pentagon;
     }
 }
 
-
-impl Drawable for Pentagon{
-    fn draw(&self, image: &mut Image){
-        for line in &self.lines{
+impl Drawable for Pentagon {
+    fn draw(&self, image: &mut Image) {
+        for line in &self.lines {
             line.draw(image);
         }
     }

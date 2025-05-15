@@ -11,7 +11,7 @@ fn main() {
 
     gs::Point::random(image.width, image.height).draw(&mut image);
 
-    let rectangle = gs::Rectangle::new(&gs::Point::new(150, 150), &gs::Point::new(50, 50));
+    let rectangle = gs::Rectangle::new(&gs::Point::new(150, 300), &gs::Point::new(50, 50));
     rectangle.draw(&mut image);
 
     let triangle = gs::Triangle::new (
@@ -25,7 +25,7 @@ fn main() {
         gs::Circle::random(image.width, image.height).draw(&mut image);
     }
 
-    gs::Cube::new(&gs::Point::new(300, 300), &gs::Point::new(500, 500)).draw(&mut image);
+    gs::Cube::new(&gs::Point::new(250, 250), &gs::Point::new(450, 450)).draw(&mut image);
     gs::Pentagon::new(&gs::Point::new(700, 500), 200).draw(&mut image);
 
     raster::save(&image, "image.png").unwrap();
