@@ -147,7 +147,7 @@ impl Drawable for Triangle {
     }
 }
 
-// // Circle Shape
+// Circle Shape
 pub struct Circle {
     center: Point,
     radius: i32,
@@ -253,5 +253,40 @@ impl Drawable for Cube {
         Line::new(self.rec_1.point_b, self.rec_2.point_b, color.clone()).draw(image);
         Line::new(self.rec_1.point_c, self.rec_2.point_c, color.clone()).draw(image);
         Line::new(self.rec_1.point_d, self.rec_2.point_d, color.clone()).draw(image);
+    }
+}
+
+pub struct Pentagon {
+    lines: Vec<Line>,
+}
+
+impl Pentagon {
+    pub fn new(start: &Point, side_length: i32) -> Self {
+        let mut current_point = *start;
+        let mut angle: f32 = 0.;
+        let mut pentagon = Pentagon { lines: vec![] };
+
+        let color = start.color();
+
+        for _ in 1..=5 {
+            let x_offset = ((side_length as f32) * angle.to_radians().cos()) as i32;
+            let y_offset = ((side_length as f32) * angle.to_radians().sin()) as i32;
+
+            let next_point = Point::new(current_point.x + x_offset, current_point.y + y_offset);
+
+            pentagon.lines.push(Line::new(current_point, next_point, color.clone()));
+            current_point = next_point;
+
+            angle += 72.0;
+        }
+        return pentagon;
+    }
+}
+
+impl Drawable for Pentagon {
+    fn draw(&self, image: &mut Image) {
+        for line in &self.lines {
+            line.draw(image);
+        }
     }
 }
